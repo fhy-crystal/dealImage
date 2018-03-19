@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>compress image</title>
+</head>
+<body>
+	<div>
+		<input type="file" id="upload">
+		<!-- <button>upload</button> -->
+	</div>
+
+	<img id="imgBox" src="" alt="origin">
+	<p id="imgInfo"></p>
+
+	<img id="dealImgBox" src="" alt="deal">
+	<p id="dealimgInfo"></p>
+
+	<script>
+		window.onload = function() {
+			var uploadBtn = document.getElementById('upload');
+			var imgBox = document.getElementById('imgBox');
+			var imgInfo = document.getElementById('imgInfo');
+			var dealImgBox = document.getElementById('dealImgBox');
+			var dealimgInfo = document.getElementById('dealimgInfo');
+
+
+			uploadBtn.onchange = function() {
+				var file = uploadBtn.files[0];
+				var reader = new FileReader();
+				if (file) {
+					reader.readAsDataURL(file);
+					reader.onload = function(e) {
+						var data;
+						if (typeof e.target.result === 'object') {
+							// 把Array Buffer转化为blob 如果是base64不需要
+							data = window.URL.createObjectURL(new Blob([e.target.result]))
+						} else {
+							data = e.target.result
+						}
+
+						// 图片预览
+						imgBox.src = data;
+
+						
+						var tempImg = new Image();
+						tempImg.src = data;
+						var cvs = document.createElement('canvas'),
+							ctx = cvs.getContext('2d');
+						var newFile = '';
+
+						tempImg.onload = function() {
+							// 获取图片宽高
+							if (tempImg.width > 500) {
+								imgBox.style.width = '500px';
+								dealImgBox.style.width = '500px';
+							} else {
+								imgBox.style.width = tempImg.width + 'px';
+								dealImgBox.style.width = tempImg.width + 'px';
+							}
+							imgInfo.innerHTML = 'width:' + tempImg.width + ' height:' + tempImg.height + ' size:' + file.size
+
+							// 压缩图片
+							cvs.width = tempImg.width;
+							cvs.height = tempImg.height;
+							ctx.drawImage(tempImg, 0, 0, cvs.width, cvs.height);
+							dealImgBox.src = cvs.toDataURL('image/jpeg', 0.1);
+							newFile = convertToBinary(cvs.toDataURL('image/jpeg', 0.1))
+							dealimgInfo.innerHTML = 'width:' + tempImg.width + ' height:' + tempImg.height + ' size:' + newFile.size
+						}
+					}
+				}
+				
+			}
+		}
+		function convertToBinary (dataURI) {
+			let byteString = window.atob(dataURI.split(',')[1])
+			let ab = new ArrayBuffer(byteString.length)
+			let ia = new Uint8Array(ab)
+			for (let i = 0; i < byteString.length; i++) {
+				ia[i] = byteString.charCodeAt(i)
+			}
+			let bb = new window.Blob([ ab ])
+			return bb
+		}
+	</script>
+</body>
+</html>
