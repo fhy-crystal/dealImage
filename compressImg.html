@@ -64,7 +64,7 @@
 							cvs.width = tempImg.width;
 							cvs.height = tempImg.height;
 							ctx.drawImage(tempImg, 0, 0, cvs.width, cvs.height);
-							dealImgBox.src = cvs.toDataURL('image/jpeg', 0.1);
+							dealImgBox.src = cvs.toDataURL('image/jpeg', 0.1); // 转换成base64格式
 							newFile = convertToBinary(cvs.toDataURL('image/jpeg', 0.1))
 							dealimgInfo.innerHTML = 'width:' + tempImg.width + ' height:' + tempImg.height + ' size:' + newFile.size
 						}
@@ -73,13 +73,13 @@
 				
 			}
 		}
+		// 转成二进制
 		function convertToBinary (dataURI) {
+			// base-64数据格式进行解码
 			let byteString = window.atob(dataURI.split(',')[1])
+
+			// 把Array Buffer转化为blob
 			let ab = new ArrayBuffer(byteString.length)
-			let ia = new Uint8Array(ab)
-			for (let i = 0; i < byteString.length; i++) {
-				ia[i] = byteString.charCodeAt(i)
-			}
 			let bb = new window.Blob([ ab ])
 			return bb
 		}
